@@ -28,7 +28,16 @@ class Node
     KNIGHT_MOVE_SET.each do |move|
       possible_child_nodes << [point[0] + move[0], point[1] + move[1]]
     end
-    validator(possible_child_nodes)
+    valid_child_nodes = validator(possible_child_nodes)
+    valid_child_nodes.each do |child|
+      child_node = Node.new(child, node)
+      node.child_node << child_node
+    end
+  end
+
+  # TODO: print out connections between node and child nodes
+  def pretty_print(node)
+    puts "#{node.current_point} -> #{node.child_node}"
   end
 end
 
@@ -36,8 +45,26 @@ def knight_moves(start_point, end_point)
   return print 'Invalid location. Must be between 1-8' unless Node.new.validator([start_point, end_point]).length == 2
   return print 'No moves required.' if start_point == end_point
 
-  start = Node.new(start_point)
-  p Node.new.child_gen(start)
+  root = Node.new(start_point)
+  current_location = root
+
+  # TODO: refactor to use call to move fn
+  until current_location.current_point == end_point
+    move(current_location)
+  end
 end
 
-knight_moves([3, 8], [3, 4])
+# TODO: create child nodes, send nodes back to original call
+def move(node)
+  current_location = node.current_location
+  Node.new.child_gen(current_location)
+  current_location.child_node.each do |child|
+    current_location = child
+    if current_location.current_point == end_point
+      puts 'found'
+      break
+    end
+  end
+end
+
+knight_moves([3, 8], [1, 3])
