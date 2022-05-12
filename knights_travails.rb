@@ -33,6 +33,16 @@ class Node
       child_node = Node.new(child, node)
       node.child_node << child_node
     end
+    valid_child_nodes
+  end
+
+  def find_path(node)
+    path = []
+    until node.nil?
+      path << node.current_point
+      node = node.parent_node
+    end
+    path.reverse
   end
 
   # TODO: print out connections between node and child nodes
@@ -45,26 +55,23 @@ def knight_moves(start_point, end_point)
   return print 'Invalid location. Must be between 1-8' unless Node.new.validator([start_point, end_point]).length == 2
   return print 'No moves required.' if start_point == end_point
 
-  root = Node.new(start_point)
-  current_location = root
+  current_node = Node.new(start_point)
+  new_nodes = Queue.new
 
-  # TODO: refactor to use call to move fn
-  until current_location.current_point == end_point
-    move(current_location)
+  until current_node.current_point == end_point
+    children = move(current_node)
+    children.each { |child| new_nodes << child }
+    current_node = new_nodes.pop
   end
+  p Node.new.find_path(current_node)
 end
 
-# TODO: create child nodes, send nodes back to original call
+# create child nodes, send nodes back to original call
 def move(node)
-  current_location = node.current_location
-  Node.new.child_gen(current_location)
-  current_location.child_node.each do |child|
-    current_location = child
-    if current_location.current_point == end_point
-      puts 'found'
-      break
-    end
-  end
+  Node.new.child_gen(node)
+  new_nodes = []
+  node.child_node.each { |child| new_nodes << child }
+  new_nodes
 end
 
-knight_moves([3, 8], [1, 3])
+knight_moves([3, 8], [7, 4])
